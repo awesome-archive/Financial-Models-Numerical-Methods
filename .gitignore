@@ -12,10 +12,17 @@
 *.png
 #*.pdf
 *~
+.DS_Store
 
 .ipynb_checkpoints
-temp/
-functions/__pycache__/
-functions/cython/build/
-functions/cython/__pycache__/
-functions/C/*.o
+temp
+build
+python-venv
+src/FMNM/__pycache__/
+src/FMNM/cython/build/
+src/FMNM/cython/__pycache__/
+src/C/*.o
+src/FMNM/FMNM.egg-info
+src/FMNM.egg-info
+src/FMNM/cython/*.so
+src/FMNM/cython/*.c

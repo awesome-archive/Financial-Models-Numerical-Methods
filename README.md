@@ -36,7 +36,7 @@ First of all, this is not a book!
 Every notebook is (almost) independent from the others. Therefore you can select only the notebook you are interested in!
 
 ```diff
-- Every notebook, contains python code ready to use!     
+- Every notebook contains python code ready to use!     
 ```
 
 It is not easy to find on internet examples of financial models implemented in python which are ready to use and well documented.    
@@ -57,7 +57,6 @@ I will upload more notebooks from time to time.
 At the moment, I'm interested in the areas of stochastic processes, Kalman Filter, statistics and much more. I will add more interesting notebooks on these topics in the future. 
 
 If you have any kind of questions, or if you find some errors, or you have suggestions for improvements, feel free to contact me.      
-This is my [linkedin](https://www.linkedin.com/in/nicolacantarutti) page.
 
 
 
@@ -70,7 +69,7 @@ This is my [linkedin](https://www.linkedin.com/in/nicolacantarutti) page.
 *(paths generation, Confidence intervals, Hypothesys testing, Geometric Brownian motion, Cox-Ingersoll-Ross process, Euler Maruyama method, parameters estimation)*
 
 1.3) **Fourier inversion methods**
-*(derivation of inversion formula, numerical inversion, option pricing)*
+*(inversion formula, numerical inversion, option pricing, FFT, Lewis formula)*
 
 1.4) **SDE, Heston model**
 *(correlated Brownian motions, Heston paths, Heston distribution, characteristic function, option pricing)*
@@ -82,10 +81,10 @@ This is my [linkedin](https://www.linkedin.com/in/nicolacantarutti) page.
 *(PDE discretization, Implicit method, sparse matrix tutorial)*
 
 2.2) **Exotic options**
-*(Binary options, Barrier options)*
+*(Binary options, Barrier options, Asian options)*
 
 2.3) **American options**
-*(PDE, Binomial method, Longstaff-Schwartz)*
+*(PDE, Early exercise, Binomial method, Longstaff-Schwartz, Perpetual put)*
 
 3.1) **Merton Jump-Diffusion PIDE**
 *(Implicit-Explicit discretization, discrete convolution, model limitations, Monte Carlo, Fourier inversion, semi-closed formula )*
@@ -99,8 +98,23 @@ This is my [linkedin](https://www.linkedin.com/in/nicolacantarutti) page.
 4.1) **Pricing with transaction costs** 
 *(Davis-Panas-Zariphopoulou model, singular control problem, HJB variational inequality, indifference pricing, binomial tree, performances)*
 
+4.2) **Volatility smile and model calibration**
+*(Volatility smile, root finder methods, calibration methods)*
+
 5.1) **Linear regression and Kalman filter** 
 *(market data cleaning, Linear regression methods, Kalman filter design, choice of parameters)*
+
+5.2) **Kalman auto-correlation tracking - AR(1) process** 
+*(Autoregressive process, estimation methods, Kalman filter, Kalman smoother, variable autocorrelation tracking)*
+
+5.3) **Volatility tracking** 
+*(Heston simulation, hypothesis testing, distribution fitting, estimation methods, GARCH(1,1), Kalman filter, Kalman smoother)*
+
+6.1) **Ornstein-Uhlenbeck process and applications**
+*(parameters estimation, hitting time, Vasicek PDE, Kalman filter, trading strategy)*
+
+7.1) **Classical MVO**
+*(mean variance optimization, quadratic programming, only long and long-short, closed formula)*
 
 A.1) **Appendix: Linear equations** 
 *(LU, Jacobi, Gauss-Seidel, SOR, Thomas)*
@@ -115,41 +129,90 @@ A.3) **Appendix: Review of Lévy processes theory**
 
 ## How to run the notebooks 
 
-You have two options:
 
-1) Install [docker](https://www.docker.com/) following the instructions in [install link](https://docs.docker.com/install/) 
+**Virtual environment:**
 
-At this point, you just need to run the script ```docker_start_notebook.py``` and you are done.     
-This script will download the data-science docker image [scipy-notebook](https://hub.docker.com/r/jupyter/scipy-notebook), that will be used every time you run the script (the script will take about 10-15 minutes to download the image, ONLY the first time). You can also download a different image by modifying the script. For a list of images see [here](https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html).
+Here I explain how to create a virtual environment with [Anaconda](https://www.anaconda.com/distribution/) and with the python module [venv](https://docs.python.org/3.7/tutorial/venv.html). 
 
-2) Clone the repository and open the notebooks using `jupyter-notebook`. 
-If you are using an old version of python there can be compatibility problems.
+- Option 1:
 
-```diff
-- Cython code needs to be compiled!
-```
+You can recreate my tested conda virtual environment with:
 
-If you are using the data science image, you can open the shell in the notebooks directory, and run the script 
 ```bash
-python docker_start_notebook.py
+conda env create -f environment.yml
+pip install -e .
 ```
 
-after that, copy-paste the following code into the shell:
+The first line recreates the virtual environment and installs all the packages.    
+With the second line we just install the local package `FMNM`.
 
-```bash 
-docker exec -it Numeric_Finance bash
-cd work/functions/cython
-python setup.py build_ext --inplace
-exit
-``` 
-(`Numeric_Finance` is the name of the docker container)
+- Option 2:
 
-If you are not using docker, just copy in the shell the following:
+If you want to create a new environment with the latest python version, you can do: 
 
-```bash 
-cd functions/cython
-python setup.py build_ext --inplace
-``` 
+```bash
+conda create -n FMNM python
+conda activate FMNM
+PACKAGES=$(tr '\n' ' ' < list_of_packages.txt | sed "s/arch/arch-py/g")
+conda install ${PACKAGES[@]}
+pip install -e .
+```
 
+where in the third line we replace the package name `arch` with the `arch-py`, which is the name used by conda.   
+
+- Option 3:
+
+If you prefer to create a `venv` that uses python 3.11.4, you can do it as follows:
+
+```bash
+python3.11.4 -m venv --prompt FMNM python-venv
+source python-venv/bin/activate
+python3 -m pip install --upgrade pip
+pip install --requirement requirements.txt
+pip install -e .
+```
+
+- Option 4:
+
+If you prefer to use the python version already installed in your system, you just need to run     
+
+```bash
+pip install --requirement list_of_packages.txt
+pip install -e .
+```     
+
+and then enter in the shell `jupyter-notebook` or `jupyter-lab`:
+
+
+However, if you are using old versions, there could be compatibility problems.
+
+**Docker:**
+
+Here we run the notebooks with jupyterlab:
+
+- Option 1:
+
+You can use docker-compose to build a container:
+
+```bash
+docker-compose up --build -d
+```
+
+And then stop the container with
+
+```bash
+docker-compose down
+```
+
+And open the browser at `http://localhost:8888/lab`
+
+- Option 2:
+
+Alternatively, you can
+
+```bash
+docker build -t fmnm .
+docker run --rm -d -p 8888:8888 --name Numeric_Finance fmnm
+```
 
 ### Enjoy!
